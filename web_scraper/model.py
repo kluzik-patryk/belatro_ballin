@@ -7,7 +7,6 @@ class Joker(BaseModel):
 
     pos: int
     name: str
+    image: str
     rarity: str
     cost: str
-    image: str
-
