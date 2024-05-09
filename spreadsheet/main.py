@@ -52,7 +52,7 @@ def get_sheet(jokers: list[dict[str, Any]], sheet_name: str = "Belatro be ballin
 
     gspread_formatting.set_row_height(sheet_instance, '3:152', 200)
     gspread_formatting.set_column_widths(sheet_instance,
-                                         [("A", 50), ("B", 135), ("C", 150), ("D", 100), ("E", 75), ("F", 75)])
+                                         [("A", 75), ("B", 135), ("C", 150), ("D", 100), ("E", 75), ("F", 120)])
     sheet_instance.update(f'A3:F{last_joker_index}', jokers_to_update, value_input_option='USER_ENTERED')
     sheet_instance.set_basic_filter(f"A2:F{last_joker_index}")
 
