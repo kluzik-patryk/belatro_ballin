@@ -8,6 +8,8 @@ from web_scraper.main import get_data
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    get_data()
+    jokers = get_data()
+
+    print(jokers)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

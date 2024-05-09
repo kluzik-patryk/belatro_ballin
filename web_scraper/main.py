@@ -1,9 +1,12 @@
+from typing import Any
+
 from bs4 import BeautifulSoup
 import requests
 
 from .model import Joker
 
 BELATRO_JOKERS_URL = "https://balatrogame.fandom.com/wiki/Jokers"
+
 
 def get_html_document(url: str = BELATRO_JOKERS_URL):
     response = requests.get(url)
@@ -15,12 +18,13 @@ def download_image(url, save_as):
     with open(save_as, 'wb') as file:
         file.write(response.content)
 
-def get_data():
+
+def get_data() -> list[dict[str, Any]]:
     """
     BS4 documentation - https://tedboy.github.io/bs4_doc/index.html
 
 
-    :return:
+    :return: list of dictionaries containing all Jokers of Belatro be ballin
     """
 
     html_document = get_html_document()
@@ -52,14 +56,4 @@ def get_data():
 
         jokers.append(joker.dict())
 
-
-    print(jokers)
-
-
-
-
-
-
-
-
-
+    return jokers
