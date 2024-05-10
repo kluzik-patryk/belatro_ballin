@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from bs4 import BeautifulSoup
 import requests
@@ -19,7 +19,7 @@ def download_image(url, save_as):
         file.write(response.content)
 
 
-def get_data() -> list[dict[str, Any]]:
+def get_data() -> list[Joker]:
     """
     BS4 documentation - https://tedboy.github.io/bs4_doc/index.html
 
@@ -28,11 +28,8 @@ def get_data() -> list[dict[str, Any]]:
     """
 
     html_document = get_html_document()
-
     soup = BeautifulSoup(html_document, "html.parser")
-
     table = soup.find("table", attrs={"class": "fandom-table sortable"})
-
     rows = table.find_all("tr")
 
     jokers = []
@@ -41,19 +38,22 @@ def get_data() -> list[dict[str, Any]]:
     for row in rows[1:]:
         columns = row.find_all('td')
 
-        nr = columns[0].get_text().strip()
-        joker_name = columns[1].find('img').get('alt')
+        num = columns[0].get_text().strip()
+        name = columns[1].find('img').get('alt')
+        link = columns[1].find('a').get('href')
+        image = columns[1].find('img').get('data-src').split('.png')[0] + '.png'
         cost = columns[3].get_text().strip()
         rarity = columns[4].find('span', class_='wds-button').get_text().strip()
-        image_link = columns[1].find('img').get('data-src').split('.png')[0] + '.png'
 
-        effect = columns[2].get_text().strip()
-        unlock_requirement = columns[5].get_text().strip()
-        type = columns[6].find('span').get_text().strip()
-        activation = columns[7].get_text().strip()
+        joker = Joker(
+            num=num,
+            name=name,
+            link=link,
+            image=image,
+            rarity=rarity,
+            cost=cost,
+        )
 
-        joker = Joker(pos=nr, name=joker_name, rarity=rarity, cost=cost, image=image_link)
-
-        jokers.append(joker.dict())
+        jokers.append(joker)
 
     return jokers

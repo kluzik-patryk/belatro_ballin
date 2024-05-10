@@ -1,13 +1,13 @@
 import os
-from typing import Any
 
 import gspread
 import gspread_formatting
 from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 from oauth2client.service_account import ServiceAccountCredentials
+from web_scraper.model import Joker
 
 
-def get_sheet(jokers: list[dict[str, Any]], sheet_name: str = "Belatro be ballin"):
+def get_sheet(jokers: list[Joker], sheet_name: str = "Belatro be ballin"):
     # define the scope
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 
@@ -29,26 +29,37 @@ def get_sheet(jokers: list[dict[str, Any]], sheet_name: str = "Belatro be ballin
     # get the first sheet of the Spreadsheet
     sheet_instance = sheet.get_worksheet(0)
 
-    keys = list(jokers[0].keys())
-
-    keys.append("Gold Sticker")
-
     # add table-top headers - view total progression
     joker_count = '="Total Jokers " & COUNTIF(F3:F152, TRUE) & "/" & 150'
     percentage = '=ROUND(COUNTIF(F3:F152, TRUE) / COUNTA(F3:F152) * 100, 2) & "%"'
     headers = ['', joker_count, percentage]
 
-    sheet_instance.update("A1:F2", [headers, keys], value_input_option='USER_ENTERED')
+    sheet_instance.update("A1:F2", [headers, jokers[0].header_fields()], value_input_option='USER_ENTERED')
 
     jokers_to_update = []
 
     for joker in jokers:
         jokers_to_update.append(
-            [joker["pos"], joker["name"], '=IMAGE(\"{}\", 3)'.format(joker["image"]), joker["rarity"], joker["cost"],
-             False])
+            [
+                joker.num,
+                f'=HYPERLINK("https://balatrogame.fandom.com{joker.link}", "{joker.name}")',
+                f'=IMAGE("{joker.image}", 3)',
+                joker.rarity,
+                joker.cost,
+                False,
+            ],
+        )
 
+    last_joker_index = jokers[-1].num + 2
 
-    last_joker_index = jokers[-1]["pos"] + 2
+    sheet_instance.format(f"A2:F{last_joker_index}", {
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "MIDDLE",
+        "textFormat": {
+            "fontSize": 12,
+            "bold": True
+        }
+    })
 
     gspread_formatting.set_row_height(sheet_instance, '3:152', 200)
     gspread_formatting.set_column_widths(sheet_instance,
@@ -61,11 +72,4 @@ def get_sheet(jokers: list[dict[str, Any]], sheet_name: str = "Belatro be ballin
         showCustomUi=True)
 
     set_data_validation_for_cell_range(sheet_instance, f'F3:F{last_joker_index}', validation_rule)
-    sheet_instance.format(f"A2:F{last_joker_index}", {
-        "horizontalAlignment": "CENTER",
-        "verticalAlignment": "MIDDLE",
-        "textFormat": {
-            "fontSize": 12,
-            "bold": True
-        }
-    })
+
